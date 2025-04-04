@@ -1,0 +1,8 @@
+<launch>
+  <node name="seg_node" pkg="pointcloud_seg" type="seg_node" output="screen">
+    <param name="pointcloud_topic" value="/camera/depth/color/points" />
+    <param name="mask_topic" value="/segmented_image/mask" />
+    <param name="rgb_info_topic" value="/camera/color/camera_info" />
+    <param name="depth_info_topic" value="/rto/d415/depth/camera_info" />
+  </node>
+</launch>
