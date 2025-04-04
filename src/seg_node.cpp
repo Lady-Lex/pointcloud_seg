@@ -40,7 +40,6 @@ public:
         mask_sub_.subscribe(nh_, mask_topic_, 1);
 
         rgb_info_sub_ = nh_.subscribe(rgb_info_topic_, 1, &PointCloudSegNode::handleRgbInfo, this);
-        depth_info_sub_ = nh_.subscribe(depth_info_topic_, 1, &PointCloudSegNode::handleDepthInfo, this);
 
         sync_.reset(new Sync(ApproxSyncPolicy(100), cloud_sub_, mask_sub_));
         sync_->registerCallback(boost::bind(&PointCloudSegNode::processData, this, _1, _2));
@@ -55,7 +54,6 @@ private:
     message_filters::Subscriber<sensor_msgs::PointCloud2> cloud_sub_;
     message_filters::Subscriber<sensor_msgs::Image> mask_sub_;
     ros::Subscriber rgb_info_sub_;
-    ros::Subscriber depth_info_sub_;
     ros::Publisher depth_image_pub_;
 
     std::string pointcloud_topic_, mask_topic_, rgb_info_topic_, depth_info_topic_;
@@ -170,7 +168,7 @@ private:
         out_image.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
         depth_map.setTo(0, depth_map == std::numeric_limits<float>::infinity());
         out_image.image = depth_map;
-        depth_image_pub_.publish(out_image.toImageMsg());
+        // depth_image_pub_.publish(out_image.toImageMsg());
     }
 
     std::pair<int, int> projectToImage(float x, float y, float z, const cv::Mat& K)
