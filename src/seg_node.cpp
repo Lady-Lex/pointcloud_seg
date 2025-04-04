@@ -30,7 +30,6 @@ public:
         pnh.param<std::string>("pointcloud_topic", pointcloud_topic_, "/camera/depth/color/points");
         pnh.param<std::string>("mask_topic", mask_topic_, "/segmented_image/mask");
         pnh.param<std::string>("rgb_info_topic", rgb_info_topic_, "/camera/color/camera_info");
-        pnh.param<std::string>("depth_info_topic", depth_info_topic_, "/rto/d415/depth/camera_info");
 
         ROS_INFO("pointcloud_seg node launched with:");
         ROS_INFO("  pointcloud_topic: %s", pointcloud_topic_.c_str());
@@ -56,14 +55,14 @@ private:
     ros::Subscriber rgb_info_sub_;
     ros::Publisher depth_image_pub_;
 
-    std::string pointcloud_topic_, mask_topic_, rgb_info_topic_, depth_info_topic_;
+    std::string pointcloud_topic_, mask_topic_, rgb_info_topic_;
 
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::PointCloud2, sensor_msgs::Image> ApproxSyncPolicy;
     typedef message_filters::Synchronizer<ApproxSyncPolicy> Sync;
     boost::shared_ptr<Sync> sync_;
 
     std::unordered_map<int, ros::Publisher> instance_pubs_;
-    cv::Mat rgb_intrinsics_, depth_intrinsics_;
+    cv::Mat rgb_intrinsics_;
     cv::Size rgb_image_size_ = cv::Size(640, 480);
 
     void handleRgbInfo(const sensor_msgs::CameraInfoConstPtr& msg)
@@ -72,15 +71,10 @@ private:
         rgb_image_size_ = cv::Size(msg->width, msg->height);
     }
 
-    void handleDepthInfo(const sensor_msgs::CameraInfoConstPtr& msg)
-    {
-        depth_intrinsics_ = cv::Mat(3, 3, CV_64F, (void*)msg->K.data()).clone();
-    }
-
     void processData(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
                      const sensor_msgs::ImageConstPtr& mask_msg)
     {
-        if (rgb_intrinsics_.empty() || depth_intrinsics_.empty()) {
+        if (rgb_intrinsics_.empty()) {
             ROS_WARN("Waiting for camera intrinsics...");
             return;
         }
